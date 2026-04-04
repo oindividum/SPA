@@ -1,0 +1,4 @@
+title: MessageNumber
+type: integer
+format: int64
+example: 123456789

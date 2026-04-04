@@ -1,0 +1,14 @@
+/* Basic styles for habr-spa. You can customize or extend as needed. */
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: #f8fafc;
+  margin: 0;
+  padding: 0;
+}
+
+/* Example: style for main container */
+.max-w-5xl {
+  max-width: 80rem;
+}
+
+/* Tailwind will handle most utility classes, but you can add custom styles here if needed. */
