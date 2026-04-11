@@ -83,7 +83,6 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
         });
         const content = await contentBlob.text();
 
-        // 6. Форматировать дату и автора
         const createdAtDate = metadata.messageCreationTime
           ? new Date(metadata.messageCreationTime).toLocaleDateString('ru-RU')
           : 'unknown';
@@ -92,28 +91,51 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
           ? metadata.authorsPublicKey.slice(0, 8) + '...'
           : 'unknown';
 
-        // Находим реальный путь к превью (если есть)
         let summaryText = '';
         if (postConfig.preview) {
-          const actualPreviewFile = logicalFiles.find(f => 
+          const actualPreviewFile = logicalFiles.find(f =>
             f.metadata?.filePath?.toLowerCase() === postConfig.preview.toLowerCase()
           );
           const previewPath = actualPreviewFile?.metadata?.filePath || postConfig.preview;
           summaryText = await (await downloadApi.readLogicalFile({ fiddId, messageNumber, logicalFilePath: previewPath })).text();
+        } else if (postConfig.description) {
+          summaryText = postConfig.description;
         } else {
-          summaryText = content.slice(0, 200) + (content.length > 200 ? '...' : '');
+          // Очищаем Markdown-разметку для аккуратного отображения (без символов вроде #, *, ссылок)
+          const cleanContent = content
+            .replace(/[#*`_>]/g, '')
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+            .replace(/\n+/g, ' ')
+            .trim();
+          summaryText = cleanContent.slice(0, 200) + (cleanContent.length > 200 ? '...' : '');
+        }
+        
+        let coverPath = postConfig.image || postConfig.cover;
+        if (!coverPath) {
+          const imageFile = logicalFiles.find(f => {
+            const p = f.metadata?.filePath?.toLowerCase() || '';
+            return p.endsWith('.png') || p.endsWith('.jpg') || p.endsWith('.jpeg') || p.endsWith('.webp');
+          });
+          if (imageFile) {
+            coverPath = imageFile.metadata?.filePath;
+          }
+        }
+        
+        let imageUrl = undefined;
+        if (coverPath) {
+          imageUrl = `/${fiddId}/${messageNumber}/${encodeURIComponent(coverPath)}`;
         }
 
-        // 7. Собрать объект Post
         posts.push({
           id: `${fiddId}_${messageNumber}`,
           title: postConfig.title,
           author,
           content,
-          summary: summaryText,
+          summary: summaryText || 'Здесь пока нет текста...', 
           createdAt: createdAtDate,
           tags: postConfig.tags || [],
-          views: 0
+          views: 0,
+          imageUrl
         });
       } catch (messageError) {
         console.error(`Ошибка при обработке сообщения ${messageNumber} в ${fiddId}:`, messageError);
