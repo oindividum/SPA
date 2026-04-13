@@ -1,14 +1,10 @@
-// каждый пост будет отображаться в виде карточки, которая будет показывать заголовок, краткое описание и дату публикации. При клике на карточку пользователь будет перенаправляться на страницу с полным текстом поста.
-// список постов feddMessasges каждый отображается как карточка postCard 
-
-// post - проп
+import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types/Post';
 
 interface PostCardProps {
-    post: Post; //передавемый пропс должен быть объетом типа Post
+    post: Post;
 }
 
-import { useNavigate } from 'react-router-dom';
 const PostCard = ({ post }: PostCardProps) => {
     const navigate = useNavigate();
     return (

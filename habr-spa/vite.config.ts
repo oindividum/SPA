@@ -18,18 +18,12 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
             console.log('proxy error', err);
           });
-          // Исправление HPE_INVALID_TRANSFER_ENCODING:
-          // Node.js падает на уровне сокета, если видит и Content-Length, и Transfer-Encoding.
-          // Чтобы прокси не падал, нужно ПЕРЕД передачей ответа в Node.js удалить лишний заголовок.
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            // Опционально: можно добавить логирование запроса
-          });
           
-          proxy.on('proxyRes', (proxyRes, req, res) => {
+          proxy.on('proxyRes', (proxyRes, req) => {
             if (proxyRes.headers['transfer-encoding'] && proxyRes.headers['content-length']) {
               console.log('Удаляю конфликтующий transfer-encoding для:', req.url);
               delete proxyRes.headers['transfer-encoding'];
