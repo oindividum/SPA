@@ -148,7 +148,8 @@ export async function getAllPosts(countPerFidd: number = 10): Promise<Post[]> {
     // Объединяем все массивы в один и сортируем (например, по ID или дате)
     // Сейчас просто объединяем
     return results.flat();
-  } catch {
+  } catch (e) {
     throw e;
   }
 }
+
