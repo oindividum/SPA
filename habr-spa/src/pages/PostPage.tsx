@@ -11,11 +11,7 @@ const PostPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    
-    setLoading(true);
-    console.log("Загружаю пост");
-    
-    // Получаем только нужный пост (оптимизация: можно сделать отдельный сервис getPostById)
+
     getAllPosts(20)
       .then(posts => {
         const found = posts.find(p => p.id === id);

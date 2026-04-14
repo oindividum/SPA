@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import PostCard from '../components/PostCard';
 import type { Post } from '../types/Post';
 import { getAllPosts } from '../services/fiddApi';
 import HeaderSection from '../components/HeaderSection';
@@ -12,22 +11,17 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Запускаю агрегацию постов со всех активных инстансов');
-    setLoading(true);
     getAllPosts(10)
       .then((data) => {
-        console.log('Все посты успешно собраны:', data);
         setPosts(data);
       })
       .catch((e) => {
-        console.error('Ошибка в useEffect Home:', e);
         setError(e.message || 'Ошибка загрузки');
       })
       .finally(() => setLoading(false));
   }, []);
 
 
-  console.log('Home component rendered');
   return (
     <div className="w-full min-h-screen bg-[#F5F5F5]">
       <HeaderSection />

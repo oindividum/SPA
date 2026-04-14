@@ -16,10 +16,8 @@ const downloadApi = new DownloadApi(apiConfig);
 export async function getActiveFiddIds(): Promise<string[]> {
   try {
     const ids = await messagesApi.getFiddIds();
-    console.log('Получены активные fiddIds:', ids);
     return ids;
-  } catch (e) {
-    console.error('Ошибка при получении списка fiddIds:', e);
+  } catch {
     return [];
   }
 }
@@ -28,18 +26,15 @@ export async function getActiveFiddIds(): Promise<string[]> {
  * Получить посты для конкретного fiddId
  */
 export async function getPostsForFidd(fiddId: string, count: number = 10): Promise<Post[]> {
-  console.log(`Загрузка постов для инстанса: ${fiddId}`);
   try {
     // 1. Получить номера сообщений
     const messageNumbers = await messagesApi.getMessageNumbersTail({ fiddId, count });
-    console.log(`Номера сообщений для ${fiddId}:`, messageNumbers);
     const posts: Post[] = [];
 
     for (const messageNumber of messageNumbers) {
       try {
         // 2. Получить список файлов (чтобы проверить наличие config.json)
         const logicalFiles = await messagesApi.getLogicalFileInfos({ fiddId, messageNumber });
-        console.log(`в сообщении ${messageNumber}:`, logicalFiles.map(f => f.metadata?.filePath).filter(Boolean));
         
         const configFile = logicalFiles.find(f => {
           const path = f.metadata?.filePath?.toLowerCase();
@@ -47,13 +42,10 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
         });
 
         if (!configFile) {
-          console.warn(`Сообщение ${messageNumber} пропущено отсутствует config.json (искали среди ${logicalFiles.length} файлов)`);
           continue;
         }
 
         const configPath = configFile.metadata?.filePath || 'config.json';
-        console.log(`загрузка манифеста ${configPath}`);
-
         // 3. Загрузить и распарсить config.json
         const configBlob = await downloadApi.readLogicalFile({
           fiddId,
@@ -61,7 +53,6 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
           logicalFilePath: configPath
         });
         const configText = await configBlob.text();
-        console.log(`содержимое конфига для сообщения ${messageNumber}`, configText);
         const postConfig = JSON.parse(configText);
 
         // 4. Получить метаданные сообщения (для автора и даты)
@@ -73,8 +64,6 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
         );
         const postFilePath = actualPostFile?.metadata?.filePath || postConfig.post;
         
-        console.log(`контент поста по пути: ${postFilePath} (из конфига: ${postConfig.post})`);
-
         // 5. Скачать основной контент
         const contentBlob = await downloadApi.readLogicalFile({
           fiddId,
@@ -137,14 +126,12 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
           views: 0,
           imageUrl
         });
-      } catch (messageError) {
-        console.error(`Ошибка при обработке сообщения ${messageNumber} в ${fiddId}:`, messageError);
+      } catch {
         continue;
       }
     }
     return posts;
-  } catch (e) {
-    console.error(`Ошибка в getPostsForFidd для ${fiddId}:`, e);
+  } catch {
     return [];
   }
 }
@@ -153,7 +140,6 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
  * Агрегировать посты со всех активных инстансов
  */
 export async function getAllPosts(countPerFidd: number = 10): Promise<Post[]> {
-  console.log('getAllPosts (multi-instance mode) called');
   try {
     const fiddIds = await getActiveFiddIds();
     const allPostsPromises = fiddIds.map(id => getPostsForFidd(id, countPerFidd));
@@ -163,7 +149,7 @@ export async function getAllPosts(countPerFidd: number = 10): Promise<Post[]> {
     // Сейчас просто объединяем
     return results.flat();
   } catch (e) {
-    console.error('Ошибка в getAllPosts:', e);
     throw e;
   }
 }
+
