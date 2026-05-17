@@ -1,4 +1,5 @@
 Стандарт
+
 За основу был взят стандарт CommonMark Spec и его диалект  GitHub Flavored Markdown.
 
 
