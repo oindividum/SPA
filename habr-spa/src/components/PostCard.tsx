@@ -12,7 +12,7 @@ const PostCard = ({ post }: PostCardProps) => {
             className="bg-white mb-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-left cursor-pointer overflow-hidden rounded-sm"
             onClick={() => navigate(`/post/${post.id}`)}
         >
-            {/* Обложка поста */}
+            {}
             {post.imageUrl && (
                 <div className="w-full h-48 overflow-hidden">
                     <img 

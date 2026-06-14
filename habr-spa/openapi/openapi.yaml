@@ -5,11 +5,10 @@ info:
   description: REST wrapper over FiddContentService
 
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:4199
 
 tags:
   - name: messages
-  - name: logical-files
 
 paths:
   /instances:
@@ -30,7 +29,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
           
-  /{fiddId}/messages/tail:
+  /api/v1/{fiddId}/messages/tail:
     get:
       operationId: getMessageNumbersTail
       tags: [messages]
@@ -58,7 +57,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /{fiddId}/messages/{messageNumber}/before:
+  /api/v1/{fiddId}/messages/{messageNumber}/before:
     get:
       operationId: getMessageNumbersBefore
       tags: [messages]
@@ -94,7 +93,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /{fiddId}/messages/range:
+  /api/v1/{fiddId}/messages/range:
     get:
       operationId: getMessageNumbersBetween
       tags: [messages]
@@ -148,7 +147,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /{fiddId}/messages/{messageNumber}/metadata:
+  /api/v1/{fiddId}/messages/{messageNumber}/metadata:
     get:
       operationId: getFiddFileMetadata
       tags: [messages]
@@ -168,7 +167,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /{fiddId}/messages/{messageNumber}/logical-files:
+  /api/v1/{fiddId}/messages/{messageNumber}/logical-files:
     get:
       operationId: getLogicalFileInfos
       tags: [messages]
@@ -184,160 +183,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: './schemas/LogicalFileInfo.yaml'
+                  $ref: './schemas/LogicalFileMetadata.yaml'
         '404':
           $ref: '#/components/responses/NotFoundError'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /{fiddId}/{messageNumber}/{logicalFilePath}:
-    get:
-      operationId: readLogicalFile
-      tags: [download]
-      summary: Read logical file content (full or partial via Range header)
-      description: |
-        Supports HTTP Range requests for partial content retrieval.
-        Use the standard `Range` header (e.g., `Range: bytes=0-1023`) to request specific byte ranges.
-      parameters:
-        - $ref: '#/components/parameters/FiddId'
-        - $ref: '#/components/parameters/MessageNumber'
-        - name: logicalFilePath
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Logical file path in Fidd message (URL-encoded)
-        - name: Range
-          in: header
-          required: false
-          schema:
-            type: string
-          description: 'HTTP Range header for partial content (e.g., "bytes=0-1023", "bytes=500-", "bytes=-500")'
-          example: "bytes=0-1023"
-        - name: list
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [m3u]
-          description: |
-            When set to "m3u", returns an M3U playlist of files under the specified folder path
-            instead of file content. The logicalFilePath should be a folder path in this case.
-        - name: filterIn
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: string
-          description: |
-            For m3u playlist: Only include files matching these glob patterns (e.g., "*.mp4", "*.mkv").
-            Supports wildcards: * (zero or more chars), ? (single char).
-        - name: filterOut
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: string
-          description: |
-            For m3u playlist: Exclude files matching these glob patterns. Higher priority than filterIn.
-        - name: sort
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [NUMERICAL_ASC, NUMERICAL_DESC, ALPHABETICAL_ASC, ALPHABETICAL_DESC]
-            default: NUMERICAL_ASC
-          description: |
-            For m3u playlist: Sorting order for playlist entries.
-            NUMERICAL sorts by numeric prefix in filenames.
-        - name: includeSubfolders
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: false
-          description: |
-            For m3u playlist: If true, include files from subfolders recursively.
-      responses:
-        '200':
-          description: |
-            File content, or M3U playlist (when list=m3u).
-            
-            For file downloads:
-            - Returns binary content with appropriate Content-Type based on file extension
-            - Includes caching headers (Last-Modified, Expires, Cache-Control)
-            
-            For M3U playlists:
-            - Returns text/plain content with Content-Disposition attachment header
-          headers:
-            Accept-Ranges:
-              schema:
-                type: string
-                enum: [bytes]
-              description: Indicates that byte-range requests are supported (file download only)
-            Content-Length:
-              schema:
-                type: integer
-              description: Total size of the file or m3u list in bytes
-            Content-Disposition:
-              schema:
-                type: string
-              description: 'Attachment header for M3U playlist download (e.g., "attachment; filename=\"playlist.m3u\"")'
-            Content-Type:
-              schema:
-                type: string
-              description: Type of content returned (e.g., "application/octet-stream" for files, "text/plain" for M3U)
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-            text/plain:
-              schema:
-                type: string
-        '206':
-          description: Partial content (when Range header is provided)
-          headers:
-            Accept-Ranges:
-              schema:
-                type: string
-                enum: [bytes]
-            Content-Range:
-              schema:
-                type: string
-              description: 'Byte range returned (e.g., "bytes 0-1023/5000")'
-              example: "bytes 0-1023/5000"
-            Content-Length:
-              schema:
-                type: integer
-              description: Size of the returned content in bytes
-            Content-Type:
-              schema:
-                type: string
-              description: Type of content returned (e.g., "application/octet-stream" for files, "text/plain" for M3U)
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '400':
-          $ref: '#/components/responses/BadRequestError'
-        '416':
-          description: Range not satisfiable (requested range is outside the file bounds)
-          headers:
-            Content-Range:
-              schema:
-                type: string
-              description: 'Indicates the total file size (e.g., "bytes */5000")'
-              example: "bytes */5000"
-          content:
-            application/json:
-              schema:
-                $ref: './schemas/Error.yaml'
         '500':
           $ref: '#/components/responses/InternalServerError'
 

@@ -1,44 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { getAllPosts } from '../services/fiddApi';
-import ReactMarkdown from 'react-markdown';
-import type { Post } from '../types/Post';
-
-const PostPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-
-    getAllPosts(20)
-      .then(posts => {
-        const found = posts.find(p => p.id === id);
-        if (found) setPost(found);
-        else setError('Пост не найден');
-      })
-      .catch(e => setError(e.message || 'Ошибка загрузки'))
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) return <div className="text-center text-gray-500 mt-8">Загрузка...</div>;
-  if (error) return <div className="text-center text-red-500 mt-8">{error}</div>;
-  if (!post) return null;
-
-  return (
-    <article className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8 mt-8">
-      <h1 className="text-3xl font-bold mb-4 text-gray-900">{post.title}</h1>
-      <div className="flex items-center gap-2 text-xs mb-6 text-gray-500">
-        <span className="font-bold text-gray-700">@{post.author}</span>
-        <span>●</span>
-        <span>{post.createdAt}</span>
-      </div>
-      <div className="prose max-w-none">
-        <ReactMarkdown>{post.content}</ReactMarkdown>
-      </div>
-    </article>
-  );
-};
-
-export default PostPage;
+import { useEffect, useState } from 'react';import { useParams } from 'react-router-dom';import { getAllPosts } from '../services/fiddApi';import ReactMarkdown from 'react-markdown';import remarkGfm from 'remark-gfm';import ReactPlayer from 'react-player';
+import type { Post } from '../types/Post';const PostPage = () => {  const { id } = useParams<{ id: string }>();  const [post, setPost] = useState<Post | null>(null);  const [loading, setLoading] = useState(true);  const [error, setError] = useState<string | null>(null);  useEffect(() => {    getAllPosts(20)      .then(posts => {        const found = posts.find(p => p.id === id);        if (found) setPost(found);        else setError('Пост не найден');      })      .catch(e => setError(e.message || 'Ошибка загрузки'))      .finally(() => setLoading(false));  }, [id]);  if (loading) return <div className="text-center text-gray-500 mt-8">Загрузка...</div>;  if (error) return <div className="text-center text-red-500 mt-8">{error}</div>;  if (!post) return null;  return (    <article className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8 mt-8">      <h1 className="text-3xl font-bold mb-4 text-gray-900">{post.title}</h1>      <div className="flex items-center gap-2 text-xs mb-6 text-gray-500">        <span className="font-bold text-gray-700">@{post.author}</span>        <span>●</span>        <span>{post.createdAt}</span>      </div>      <div className="prose max-w-none">        <ReactMarkdown           remarkPlugins={[remarkGfm]}          components={{ p: ({node, ...props}) => <div className='mb-4' {...props} />,            img: ({node, src, alt, ...props}) => {              if (!src) return null;              const [fiddId, messageNumber] = post.id.split('_');              let fullSrc = src;              if (!src.startsWith('http')) {                fullSrc = `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(src)}`;              }              const ext = src.split('.').pop()?.toLowerCase();              if (ext === 'mp4' || ext === 'webm' || ext === 'ogg' || ext === 'mov') {                return (                  <video controls className="w-full rounded-lg my-4" src={fullSrc}>                    Your browser does not support the video tag.                  </video>                );              }              if (ext === 'mp3' || ext === 'wav') {                return (                  <audio controls className="w-full my-4" src={fullSrc}>                    Your browser does not support the audio element.                  </audio>                );              }
+              return <img src={fullSrc} alt={alt} className="rounded-lg my-4 max-w-full" {...props} />;            }          }}        >          {post.content}        </ReactMarkdown>      </div>    </article>  );};export default PostPage;

@@ -11,10 +11,12 @@ properties:
   messageNumber:
     $ref: '../schemas/MessageNumber.yaml'
   originalMessageNumber:
-    $ref: '../schemas/MessageNumber.yaml'
-    description: Post originally published as msg number
+    allOf:
+      - $ref: '../schemas/MessageNumber.yaml'
+      - description: Post originally published as msg number
   previousMessageNumber:
-    $ref: '../schemas/MessageNumber.yaml'
+    allOf:
+      - $ref: '../schemas/MessageNumber.yaml'
   postId:
     type: string
   versionNumber:
@@ -45,3 +47,4 @@ properties:
     type: array
     items:
       type: string
+

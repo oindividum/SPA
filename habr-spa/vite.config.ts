@@ -6,8 +6,18 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      '/api/v1': {
+        target: 'http://localhost:4199',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/fidds/v1': {
+        target: 'http://localhost:4198',
+        changeOrigin: true,
+        secure: false,
+      },
       '/instances': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:4199',
         changeOrigin: true,
         secure: false,
       },
@@ -15,7 +25,7 @@ export default defineConfig({
       // или добавь конкретные префиксы, если они известны.
       // Используем регулярное выражение для захвата всех числовых ID сессий
       '^/(?!@vite/|src/|node_modules)([^/]+)/.*': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:4198',
         changeOrigin: true,
         secure: false,
         configure: (proxy) => {

@@ -31,7 +31,7 @@ export const FeedSection = ({ posts, loading, error }: FeedSectionProps) => (
     </div>
     <aside className="w-[260px] shrink-0 bg-white rounded-[10px] p-4 h-fit flex flex-col gap-4">
       <div className="font-semibold text-lg mb-2">Рекомендуем блоги</div>
-      {/* Заглушка для списка блогов */}
+      {}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between text-base text-black"><span>@Fidd_dev</span><span>2000</span></div>
         <div className="flex items-center justify-between text-base text-black"><span>@Tech_lead</span><span>1456</span></div>
