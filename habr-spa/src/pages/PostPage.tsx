@@ -174,6 +174,7 @@ const PostPage = () => {
           
             remarkPlugins={[remarkGfm]}
             components={{
+            p: ({node, children, ...props}) => <div className="my-2" {...props}>{children}</div>,
             pre: ({node, ...props}) => <pre className="whitespace-pre-wrap break-words overflow-x-auto bg-gray-100 p-4 rounded-lg my-4" {...props} />,
             img: ({node, src, alt, ...props}) => {
               if (!src) return null;
@@ -183,7 +184,8 @@ const PostPage = () => {
                 fullSrc = `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(src)}`;
               }
 
-              const ext = src.split('.').pop()?.toLowerCase();
+              const cleanSrc = src.split('?')[0];
+              const ext = cleanSrc.split('.').pop()?.toLowerCase();
                 if (ext === 'm3u') {
                   return (
                     <PlaylistPlayer 
