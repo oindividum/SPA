@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { Post } from '../types/Post';
+import { buildFlatTree } from '../utils/fileTree';
 
 interface PostCardProps {
     post: Post;
@@ -9,8 +10,7 @@ const PostCard = ({ post }: PostCardProps) => {
     const navigate = useNavigate();
     const isDirectory = !post.content && post.files && post.files.length > 0;
     
-  const getFileIconSvg = (filename: string) => {
-    const isFolder = !filename.includes('.');
+  const getFileIconSvg = (filename: string, isFolder: boolean) => {
     if (isFolder) {
       return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -30,6 +30,8 @@ const PostCard = ({ post }: PostCardProps) => {
     );
   };
 
+  const flatTree = buildFlatTree(post.files || []);
+
   const directoryPreviewList = (
     <div 
       className="mt-4 bg-white rounded-[16px] shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] border border-gray-100 p-5 font-sans"
@@ -42,15 +44,15 @@ const PostCard = ({ post }: PostCardProps) => {
       </div>
       
       <div className="flex flex-col gap-3">
-        {post.files?.slice(0, 3).map(file => {
-          const isFolder = !file.includes('.');
+        {flatTree.slice(0, 3).map((node, index) => {
+          const isFolder = node.isDirectory;
           return (
-            <div key={file} className="flex text-left items-start justify-between">
+            <div key={`${node.path}-${index}`} className="flex text-left items-start justify-between" style={{ paddingLeft: `${node.depth * 16}px` }}>
               <div className="flex items-start gap-3 overflow-hidden">
                 <div className="text-black flex-shrink-0 mt-0.5">
-                  {getFileIconSvg(file)}
+                  {getFileIconSvg(node.name, isFolder)}
                 </div>
-                <span className="text-[14px] font-medium text-black leading-snug line-clamp-2 break-words">{file}</span>
+                <span className="text-[14px] font-medium text-black leading-snug line-clamp-2 break-words">{node.name}</span>
               </div>
               {isFolder && (
                 <svg className="w-5 h-5 text-black flex-shrink-0 ml-2 mt-0.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -64,7 +66,7 @@ const PostCard = ({ post }: PostCardProps) => {
 
       <div className="border-t border-gray-200 mt-4 pt-4">
         <button className="w-full text-center text-[#8C8C8C] text-[15px] font-medium transition-colors">
-          {post.files && post.files.length > 3 ? `Открыть (ещё ${post.files.length - 3} файлов)` : 'Открыть локально'}
+          {flatTree.length > 3 ? `Открыть (ещё ${flatTree.length - 3} файлов/папок)` : 'Открыть локально'}
         </button>
       </div>
     </div>

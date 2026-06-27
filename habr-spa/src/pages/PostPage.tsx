@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { getAllPosts } from '../services/fiddApi';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import ReactPlayer from 'react-player';
 import type { Post } from '../types/Post';
+import { buildFlatTree } from '../utils/fileTree';
 
 const PostPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,32 +53,41 @@ const PostPage = () => {
               </svg>
             </div>
             
-            <div className="flex flex-col gap-2 mb-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              {post.files.map(file => {
-                const fileUrl = `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(file)}`;
-                return (
-                  <a 
-                    key={file} 
-                    href={fileUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex text-left items-center justify-between group hover:bg-gray-50 p-2 rounded-xl transition-colors"
-                  >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="text-gray-800 flex-shrink-0">
-                       
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
+            <div className="flex flex-col gap-1 mb-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+              {(() => {
+                const flatTree = buildFlatTree(post.files);
+                return flatTree.map((node, index) => {
+                  const fileUrl = node.isDirectory ? '#' : `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(node.path)}`;
+                  return (
+                    <a 
+                      key={`${node.path}-${index}`} 
+                      href={fileUrl} 
+                      target={node.isDirectory ? undefined : "_blank"} 
+                      rel={node.isDirectory ? undefined : "noopener noreferrer"}
+                      className={`flex text-left items-center justify-between group hover:bg-gray-50 p-2 rounded-xl transition-colors ${node.isDirectory ? 'cursor-default' : ''}`}
+                      style={{ marginLeft: `${node.depth * 16}px` }}
+                      onClick={(e) => {
+                        if (node.isDirectory) e.preventDefault();
+                      }}
+                    >
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="text-gray-800 flex-shrink-0">
+                          {node.isDirectory ? (
+                            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="text-sm text-gray-800 group-hover:text-black truncate">{node.name}</span>
                       </div>
-                      <span className="text-sm text-gray-800 group-hover:text-black truncate">{file}</span>
-                    </div>
-                    <svg className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </a>
-                );
-              })}
+                    </a>
+                  );
+                });
+              })()}
             </div>
             
             <div className="border-t border-gray-200 mt-2 pt-4">
