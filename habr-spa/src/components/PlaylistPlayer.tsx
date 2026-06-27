@@ -81,7 +81,7 @@ export const PlaylistPlayer = ({ m3uUrl, basePath }: PlaylistPlayerProps) => {
           <polygon points="14 2 18 6 7 16.5 3 17 3.5 13 14 2" />
           <line x1="3" y1="22" x2="21" y2="22" />
         </svg>
-        <h4 className="text-[18px] font-medium text-black tracking-tight">Медиа Плейлист</h4>
+        <div className="text-[18px] font-medium text-black tracking-tight m-0 p-0 line-clamp-1">Медиа Плейлист</div>
         <span className="text-[13px] text-[#8C8C8C] ml-auto font-medium">
           {currentIndex + 1} / {tracks.length}
         </span>
