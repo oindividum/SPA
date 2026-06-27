@@ -44,10 +44,21 @@ const PostCard = ({ post }: PostCardProps) => {
       </div>
       
       <div className="flex flex-col gap-3">
+        <div className="flex text-left items-start justify-between" style={{ paddingLeft: '0px' }}>
+          <div className="flex items-start gap-3 overflow-hidden">
+            <div className="text-black flex-shrink-0 mt-0.5">
+              {getFileIconSvg('root', true)}
+            </div>
+            <span className="text-[14px] font-medium text-black leading-snug line-clamp-2 break-words">{post.title}</span>
+          </div>
+          <svg className="w-5 h-5 text-black flex-shrink-0 ml-2 mt-0.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
         {flatTree.slice(0, 3).map((node, index) => {
           const isFolder = node.isDirectory;
           return (
-            <div key={`${node.path}-${index}`} className="flex text-left items-start justify-between" style={{ paddingLeft: `${node.depth * 16}px` }}>
+            <div key={`${node.path}-${index}`} className="flex text-left items-start justify-between" style={{ paddingLeft: `${(node.depth + 1) * 16}px` }}>
               <div className="flex items-start gap-3 overflow-hidden">
                 <div className="text-black flex-shrink-0 mt-0.5">
                   {getFileIconSvg(node.name, isFolder)}

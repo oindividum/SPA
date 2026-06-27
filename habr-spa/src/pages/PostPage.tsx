@@ -51,7 +51,29 @@ const PostPage = () => {
       <div className="flex flex-col gap-3 mb-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
         {(() => {
           const flatTree = buildFlatTree(post.files || []);
-          return flatTree.map((node, index) => {
+
+          const rootNode = (
+            <div 
+              key="root"
+              className="flex text-left items-start justify-between group hover:bg-gray-50 p-2 rounded-xl transition-colors cursor-default"
+            >
+              <div className="flex items-start gap-3 overflow-hidden">
+                <div className="text-black flex-shrink-0 mt-0.5">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="6" width="18" height="12" rx="3" fill="transparent" />
+                    <path d="M3 12h18" />
+                    <path d="M6 15h3" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-black leading-snug break-words">{post.title}</span>
+              </div>
+              <svg className="w-5 h-5 text-black flex-shrink-0 ml-2 mt-0.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          );
+
+          const childNodes = flatTree.map((node, index) => {
             const fileUrl = node.isDirectory ? '#' : `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(node.path)}`;
             return (
               <a 
@@ -60,7 +82,7 @@ const PostPage = () => {
                 target={node.isDirectory ? undefined : "_blank"} 
                 rel={node.isDirectory ? undefined : "noopener noreferrer"}
                 className={`flex text-left items-start justify-between group hover:bg-gray-50 p-2 rounded-xl transition-colors ${node.isDirectory ? 'cursor-default' : ''}`}
-                style={{ marginLeft: `${node.depth * 16}px` }}
+                style={{ marginLeft: `${(node.depth + 1) * 16}px` }}
                 onClick={(e) => {
                   if (node.isDirectory) e.preventDefault();
                 }}
@@ -92,6 +114,8 @@ const PostPage = () => {
               </a>
             );
           });
+
+          return [rootNode, ...childNodes];
         })()}
       </div>
       
