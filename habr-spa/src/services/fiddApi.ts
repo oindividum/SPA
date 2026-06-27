@@ -36,7 +36,7 @@ export async function getActiveFiddIds(): Promise<string[]> {
 export async function getPostsForFidd(fiddId: string, count: number = 10): Promise<Post[]> {
   try {
     const messageNumbers = await messagesApi.getMessageNumbersTail({ fiddId, count });
-    console.log(`[getPostsForFidd] fiddId=${fiddId}, messageNumbers=`, messageNumbers);
+    // console.log(`[getPostsForFidd] fiddId=${fiddId}, messageNumbers=`, messageNumbers);
     const posts: Post[] = [];
     for (const messageNumber of messageNumbers) {
       try {
@@ -45,17 +45,17 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
           throw new Error('Failed to fetch logical files');
         }
         const logicalFiles: any[] = await logicalFilesResponse.json();
-        console.log(`[getPostsForFidd] logicalFiles for ${messageNumber}:`, logicalFiles.map(f => f.filePath));
+        // console.log(`[getPostsForFidd] logicalFiles for ${messageNumber}:`, logicalFiles.map(f => f.filePath));
         const configFile = logicalFiles.find(f => {
           const path = f.filePath?.toLowerCase();
           return path === 'config.json' || path === '/config.json';
         });
         if (!configFile) {
-          console.log(`[getPostsForFidd] config.json not found in message ${messageNumber}`);
+          // console.log(`[getPostsForFidd] config.json not found in message ${messageNumber}`);
           continue;
         }
         const configPath = configFile.filePath || 'config.json';
-        console.log(`[getPostsForFidd] configPath=${configPath}`);
+        // console.log(`[getPostsForFidd] configPath=${configPath}`);
         const configBlob = await downloadApi.readLogicalFile({
           fiddId,
           messageNumber,
@@ -125,7 +125,7 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
         if (coverPath) {
           imageUrl = `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(coverPath)}`;
         }
-        console.log(`[getPostsForFidd] Pushing post from ${messageNumber}`, postConfig.title);
+        // console.log(`[getPostsForFidd] Pushing post from ${messageNumber}`, postConfig.title);
         posts.push({
           id: `${fiddId}_${messageNumber}`,
           title: postConfig.title,
@@ -143,7 +143,7 @@ export async function getPostsForFidd(fiddId: string, count: number = 10): Promi
         continue;
       }
     }
-    console.log(`[getPostsForFidd] Returning posts:`, posts);
+    // console.log(`[getPostsForFidd] Returning posts:`, posts);
     return posts;
   } catch (err) {
     console.error(`[getPostsForFidd] Error in getPostsForFidd:`, err);
