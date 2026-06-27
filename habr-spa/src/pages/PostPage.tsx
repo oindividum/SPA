@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Post } from '../types/Post';
 import { buildFlatTree } from '../utils/fileTree';
+import { PlaylistPlayer } from '../components/PlaylistPlayer';
 
 const PostPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +39,8 @@ const PostPage = () => {
 
   const isDirectory = !post.content && post.files && post.files.length > 0;
   const [fiddId, messageNumber] = post.id.split('_');
+
+  const m3uFile = post.files?.find(f => f.toLowerCase().endsWith('.m3u'));
 
   const directoryPanel = post.files && post.files.length > 0 ? (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-8">
@@ -139,6 +142,14 @@ const PostPage = () => {
             <span>●</span>
             <span>{post.createdAt}</span>
           </div>
+          {m3uFile && (
+            <div className="mt-8">
+              <PlaylistPlayer 
+                m3uUrl={`/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(m3uFile)}`} 
+                basePath={`/fidds/v1/${fiddId}/${messageNumber}`} 
+              />
+            </div>
+          )}
         </div>
         <div className="w-full">
           {directoryPanel}
@@ -173,6 +184,14 @@ const PostPage = () => {
               }
 
               const ext = src.split('.').pop()?.toLowerCase();
+                if (ext === 'm3u') {
+                  return (
+                    <PlaylistPlayer 
+                      m3uUrl={fullSrc} 
+                      basePath={`/fidds/v1/${fiddId}/${messageNumber}`} 
+                    />
+                  );
+                }
               if (ext === 'mp4' || ext === 'webm' || ext === 'ogg' || ext === 'mov') {
                 return (
                   <div className="my-4 rounded-lg overflow-hidden bg-black">
