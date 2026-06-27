@@ -41,66 +41,6 @@ const PostPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6 mt-8 px-4 items-start pb-12">
-      
-     
-      {post.files && post.files.length > 0 && (
-        <aside className="w-full md:w-80 flex-shrink-0">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-8">
-            <div className="flex items-center justify-between mb-4 pb-2">
-              <h3 className="text-xl font-medium text-gray-900">Директория</h3>
-              <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-              </svg>
-            </div>
-            
-            <div className="flex flex-col gap-1 mb-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              {(() => {
-                const flatTree = buildFlatTree(post.files);
-                return flatTree.map((node, index) => {
-                  const fileUrl = node.isDirectory ? '#' : `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(node.path)}`;
-                  return (
-                    <a 
-                      key={`${node.path}-${index}`} 
-                      href={fileUrl} 
-                      target={node.isDirectory ? undefined : "_blank"} 
-                      rel={node.isDirectory ? undefined : "noopener noreferrer"}
-                      className={`flex text-left items-center justify-between group hover:bg-gray-50 p-2 rounded-xl transition-colors ${node.isDirectory ? 'cursor-default' : ''}`}
-                      style={{ marginLeft: `${node.depth * 16}px` }}
-                      onClick={(e) => {
-                        if (node.isDirectory) e.preventDefault();
-                      }}
-                    >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="text-gray-800 flex-shrink-0">
-                          {node.isDirectory ? (
-                            <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                            </svg>
-                          ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                            </svg>
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-800 group-hover:text-black truncate">{node.name}</span>
-                      </div>
-                    </a>
-                  );
-                });
-              })()}
-            </div>
-            
-            <div className="border-t border-gray-200 mt-2 pt-4">
-              <button 
-                className="w-full text-center text-gray-400 font-medium hover:text-gray-600 transition-colors py-1"
-              >
-                Открыть локально
-              </button>
-            </div>
-          </div>
-        </aside>
-      )}
-
      
       <article className="flex-1 w-full bg-white rounded-xl shadow-md p-8 min-w-0">
         <h1 className="text-3xl font-bold mb-4 text-gray-900">{post.title}</h1>
@@ -115,7 +55,7 @@ const PostPage = () => {
             <svg className="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-lg">Выберите файл из директории слева</p>
+            <p className="text-lg">Выберите файл из директории справа</p>
           </div>
         ) : (
           <div className="prose max-w-none break-words overflow-hidden">
@@ -157,6 +97,74 @@ const PostPage = () => {
         </div>
       )}
     </article>
+
+      {post.files && post.files.length > 0 && (
+        <aside className="w-full md:w-80 flex-shrink-0">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sticky top-8">
+            <div className="flex items-center justify-between mb-4 pb-2">
+              <h3 className="text-xl font-medium text-black">Директория</h3>
+              <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </div>
+            
+            <div className="flex flex-col gap-3 mb-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+              {(() => {
+                const flatTree = buildFlatTree(post.files);
+                return flatTree.map((node, index) => {
+                  const fileUrl = node.isDirectory ? '#' : `/fidds/v1/${fiddId}/${messageNumber}/${encodeURIComponent(node.path)}`;
+                  return (
+                    <a 
+                      key={`${node.path}-${index}`} 
+                      href={fileUrl} 
+                      target={node.isDirectory ? undefined : "_blank"} 
+                      rel={node.isDirectory ? undefined : "noopener noreferrer"}
+                      className={`flex text-left items-start justify-between group hover:bg-gray-50 p-2 rounded-xl transition-colors ${node.isDirectory ? 'cursor-default' : ''}`}
+                      style={{ marginLeft: `${node.depth * 16}px` }}
+                      onClick={(e) => {
+                        if (node.isDirectory) e.preventDefault();
+                      }}
+                    >
+                      <div className="flex items-start gap-3 overflow-hidden">
+                        <div className="text-black flex-shrink-0 mt-0.5">
+                          {node.isDirectory ? (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="6" width="18" height="12" rx="3" fill="transparent" />
+                              <path d="M3 12h18" />
+                              <path d="M6 15h3" />
+                            </svg>
+                          ) : (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                              <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" />
+                              <path d="M9 13h6" />
+                              <path d="M9 17h3" />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="text-sm font-medium text-black leading-snug break-words">{node.name}</span>
+                      </div>
+                      {node.isDirectory && (
+                        <svg className="w-5 h-5 text-black flex-shrink-0 ml-2 mt-0.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
+                    </a>
+                  );
+                });
+              })()}
+            </div>
+            
+            <div className="border-t border-gray-200 mt-2 pt-4">
+              <button 
+                className="w-full text-center text-[#8C8C8C] text-[15px] font-medium transition-colors py-1"
+              >
+                Открыть локально
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
   </div>
   );
 };
