@@ -8,6 +8,7 @@ export interface Post {
     createdAt: string;
     tags: string[];
     views: number;
-    imageUrl?: string; // URL обложки поста
+    imageUrl?: string; // url обложки поста
+    files: string[];
 }
 
